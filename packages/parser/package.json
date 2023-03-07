@@ -11,5 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "pdfjs-dist": "^3.4.120"
+  },
+  "devDependencies": {
+    "vitest": "^0.29.2"
   }
 }
