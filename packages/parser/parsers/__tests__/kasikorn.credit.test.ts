@@ -35,8 +35,11 @@ describe('kasikorn credit parser', async () => {
   })
 
   it('parses generic kasikorn credit statement', async () => {
-    // expect(chunks.length).toBe(4)
-    // const transactions = parseKasikornCreditStatement(chunks)
-    // expect(transactions.length).toBe(10)
+    const transactions = parseKasikornCreditStatement(rawChunks)
+    expect(transactions.length).toBe(152)
+
+    const sample = transactions[1]
+    expect(sample.amount).toBe(600)
+    expect(sample.description).toBe('OMISETH*gowabi.com')
   })
 })
