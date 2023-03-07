@@ -17,14 +17,14 @@ export interface Transaction {
   // for example, description here could mean a lot of different things.
   // TODO: to document the variations.
   description: string
-  desciption2?: string
-  desciption3?: string
+  description2?: string
+  description3?: string
 
   /** Amount in THB */
   amount: number
 
   /** Amount in USD */
-  amountInUSD?: number
+  foreignCurrencyAmount?: number
 
   usdRate?: number
 }

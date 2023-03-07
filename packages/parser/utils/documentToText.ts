@@ -1,13 +1,13 @@
 import {getDocument} from 'pdfjs-dist'
 
-import {DocumentInput} from '../@types/Document'
+import {DocumentSource} from '../@types/DocumentSource'
 
 /**
  * Extracts text from PDF.
  *
  * @todo write tests for this - find a sample source we can use in tests.
  **/
-export async function extractTextFromPDF(source: DocumentInput) {
+export async function extractTextFromPDF(source: DocumentSource) {
   const document = await getDocument(source).promise
   const pages: string[][] = []
 
@@ -19,7 +19,7 @@ export async function extractTextFromPDF(source: DocumentInput) {
 
       const stringObjects = content.items.map((item) => {
         // Text content
-        if ('str' in item) return item.str
+        if ('str' in item) return item.str.trim()
 
         return ''
       })
