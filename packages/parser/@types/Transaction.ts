@@ -6,11 +6,7 @@ export interface Transaction {
    **/
   transactionDate: Date
 
-  /**
-   * Date when the payment went through.
-   *
-   * @todo parse this into JS date.
-   **/
+  /** Date when the payment went through. **/
   paymentDate: Date
 
   // TODO: parse into a more deterministic format.

@@ -1,4 +1,4 @@
-import {getDocument} from 'pdfjs-dist'
+import {getDocument, GlobalWorkerOptions} from 'pdfjs-dist'
 
 import {DocumentSource} from '../@types/DocumentSource'
 
@@ -10,6 +10,13 @@ import {DocumentSource} from '../@types/DocumentSource'
 export async function extractTextChunksFromPDF(
   source: DocumentSource
 ): Promise<string[][]> {
+  // Initialize PDF.js workers
+  if (typeof window !== 'undefined' && !GlobalWorkerOptions.workerSrc) {
+    GlobalWorkerOptions.workerSrc = await import(
+      'pdfjs-dist/build/pdf.worker.entry'
+    )
+  }
+
   const document = await getDocument(source).promise
   const pages: string[][] = []
 

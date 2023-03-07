@@ -41,5 +41,6 @@ describe('kasikorn credit parser', async () => {
     const sample = transactions[1]
     expect(sample.amount).toBe(600)
     expect(sample.description).toBe('OMISETH*gowabi.com')
+    expect(sample.paymentDate.toLocaleDateString()).toBe('11/27/2021')
   })
 })
