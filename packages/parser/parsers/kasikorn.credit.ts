@@ -9,12 +9,12 @@ const PATTERN_CURRENCY = /^(USD|JPY)/
 const isDate = (s: string) => PATTERN_DATE.test(s)
 const isAmount = (s: string) => PATTERN_AMOUNT.test(s) && s.includes('.')
 
-function processLine(contents: string[]): string[][] {
+export function extractTextChunksFromLine(contents: string[]): string[][] {
   // We start at the first date (e.g. 10/02/2023)
   const startIndex = contents.findIndex(isDate)
 
   const lines = contents.slice(startIndex)
-  let textChunks: string[][] = []
+  const textChunks: string[][] = []
 
   // The line of transaction we are processing.
   let tx = 0
@@ -126,5 +126,7 @@ export function chunksToTransaction(chunks: string[]): Transaction | null {
   return null
 }
 
-export const parser: StatementParser = (pages: string[][]) =>
-  pages.map(processLine).flatMap((page) => page.map(chunksToTransaction))
+export const parseKasikornCreditStatement: StatementParser = (pages) =>
+  pages
+    .map(extractTextChunksFromLine)
+    .flatMap((page) => page.map(chunksToTransaction))

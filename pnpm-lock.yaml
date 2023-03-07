@@ -47,10 +47,12 @@ importers:
   packages/parser:
     specifiers:
       pdfjs-dist: ^3.4.120
+      vite: ^4.1.1
       vitest: ^0.29.2
     dependencies:
       pdfjs-dist: 3.4.120
     devDependencies:
+      vite: 4.1.4
       vitest: 0.29.2
 
   packages/tsconfig:
