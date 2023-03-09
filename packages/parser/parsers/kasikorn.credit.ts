@@ -88,7 +88,7 @@ export function chunksToTransaction(chunks: string[]): Transaction | null {
       const foreignCurrencyAmount = intoAmount(
         chunks[currencyAmountIndex].replace(PATTERN_CURRENCY, '').trim()
       )
-      const usdRate = amount / foreignCurrencyAmount
+      const conversionRate = amount / foreignCurrencyAmount
 
       return {
         transactionDate: parseDate(transactionDate),
@@ -97,7 +97,7 @@ export function chunksToTransaction(chunks: string[]): Transaction | null {
         description2,
         foreignCurrencyAmount,
         amount,
-        usdRate,
+        conversionRate,
       }
     }
   }
