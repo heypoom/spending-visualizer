@@ -16,6 +16,16 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "heypoom",
+      "name": "Phoomparin Mano",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4714175?v=4",
+      "profile": "https://poom.dev",
+      "contributions": [
+        "code",
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
