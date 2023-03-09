@@ -30,7 +30,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="http://ggolfz.me"><img src="https://avatars.githubusercontent.com/u/52349645?v=4?s=100" width="100px;" alt="GGolfz"/><br /><sub><b>GGolfz</b></sub></a><br /><a href="#infra-GGolfz" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/heypoom/spending-visualizer/commits?author=GGolfz" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://ggolfz.me"><img src="https://avatars.githubusercontent.com/u/52349645?v=4?s=100" width="100px;" alt="GGolfz"/><br /><sub><b>GGolfz</b></sub></a><br /><a href="#infra-GGolfz" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/heypoom/spending-visualizer/commits?author=GGolfz" title="Code">💻</a> <a href="https://github.com/heypoom/spending-visualizer/commits?author=GGolfz" title="Tests">⚠️</a></td>
     </tr>
   </tbody>
 </table>
