@@ -1,6 +1,7 @@
 import {getDocument, GlobalWorkerOptions} from 'pdfjs-dist'
 
 import {DocumentSource} from '../@types/DocumentSource'
+import {ENTER_PASSWORD, MAX_NUMBER_OF_TRIES, TOO_MANY_PASSWORD_ATTEMPTS} from '../constant/password'
 
 /**
  * Extracts chunks of texts from PDF.
@@ -16,8 +17,24 @@ export async function extractTextChunksFromPDF(
       'pdfjs-dist/build/pdf.worker.entry'
     )
   }
+  
+  const documentProvider = getDocument(source);
 
-  const document = await getDocument(source).promise
+  let numberOfTries = 0;
+
+  documentProvider.onPassword = (
+    updatePassword: (password: string) => void,
+    _: any
+  ) => {
+    if (++numberOfTries > MAX_NUMBER_OF_TRIES) {
+      alert(TOO_MANY_PASSWORD_ATTEMPTS)
+      return;
+    }
+    const password = prompt(ENTER_PASSWORD)
+    updatePassword(password)
+  }
+
+  const document = await documentProvider.promise
   const pages: string[][] = []
 
   for (let numPage = 1; numPage <= document.numPages; numPage++) {
