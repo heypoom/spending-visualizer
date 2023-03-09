@@ -124,6 +124,7 @@ export default function Home() {
         type="file"
         onchange={handleFileUpload}
         ref={passwordInputRef}
+        multiple
       />
 
       {!transactions() && (
