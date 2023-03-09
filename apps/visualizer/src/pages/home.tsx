@@ -10,6 +10,34 @@ export default function Home() {
 
   const [errorMessage, setError] = createSignal<string | null>(null)
 
+  let passwordInputRef: HTMLInputElement | undefined = undefined
+
+  interface Column {
+    title: string
+    class?: string
+    accessor(tx: Transaction): string | number
+  }
+
+  const columns: Column[] = [
+    {
+      title: "Payment Date",
+      accessor: (tx) => tx?.paymentDate?.toLocaleDateString(),
+      class: "text-semibold",
+    },
+    {
+      title: "Amount",
+      accessor: (tx) => tx?.amount,
+    },
+    {
+      title: "Description",
+      accessor: (tx) => tx?.description,
+    },
+    {
+      title: "Location/ID",
+      accessor: (tx) => tx?.description2,
+    },
+  ]
+
   function handleDrop(e: DragEvent) {
     e.preventDefault()
     processFile(e.dataTransfer?.files || new FileList())
@@ -19,11 +47,9 @@ export default function Home() {
     e.preventDefault()
   }
 
-  const headers = ["Amount", "Payment Date"]
-
   function handleClickUploadFile(e: MouseEvent) {
     e.preventDefault()
-    document.getElementById("statement-input")?.click()
+    passwordInputRef?.click()
   }
 
   function handleFileUpload(e: Event) {
@@ -68,8 +94,8 @@ export default function Home() {
       <input
         class="hidden"
         type="file"
-        id="statement-input"
         onchange={handleFileUpload}
+        ref={passwordInputRef}
       />
 
       {!transactions() && (
@@ -107,19 +133,12 @@ export default function Home() {
               <table class="min-w-full divide-y divide-gray-300">
                 <thead>
                   <tr>
-                    <th
-                      scope="col"
-                      class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
-                    >
-                      Description
-                    </th>
-
-                    {headers.map((header) => (
+                    {columns.map((column) => (
                       <th
                         scope="col"
-                        class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900"
+                        class={`py-3.5 px-3 text-left text-sm font-semibold text-gray-900 ${column.class}`}
                       >
-                        {header}
+                        {column.title}
                       </th>
                     ))}
                   </tr>
@@ -128,17 +147,13 @@ export default function Home() {
                 <tbody class="divide-y divide-gray-200">
                   {transactions()?.map((tx) => (
                     <tr>
-                      <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                        {tx.description}
-                      </td>
-
-                      <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
-                        {tx.amount}
-                      </td>
-
-                      <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
-                        {tx.paymentDate.toLocaleDateString()}
-                      </td>
+                      {columns.map((column) => (
+                        <td
+                          class={`whitespace-nowrap py-4 px-3 text-sm text-gray-500 ${column.class}`}
+                        >
+                          {column.accessor(tx)}
+                        </td>
+                      ))}
                     </tr>
                   ))}
                 </tbody>
