@@ -71,7 +71,35 @@ export default function Home() {
     if (format === "json") return JSON.stringify(transactions(), null, 2)
 
     // TODO: create CSV export function.
-    if (format === "csv") return "unimplemented :)"
+    if (format === "csv") {
+      const headers = [
+        "Payment Date",
+        "Transaction Date",
+        "Amount",
+        "Description",
+        "Description 2",
+        "Description 3",
+        "Foreign Currency Amount",
+        "Conversion Rate",
+      ].join(", ")
+
+      const values = transactions()
+        .map((t) =>
+          [
+            t.paymentDate,
+            t.transactionDate,
+            t.amount,
+            t.description,
+            t.description2,
+            t.description3,
+            t.foreignCurrencyAmount,
+            t.conversionRate,
+          ].join(", ")
+        )
+        .join("\n")
+
+      return `${headers}\n${values}`
+    }
   }
 
   const exportFile = (format: "json" | "csv") => () => {
