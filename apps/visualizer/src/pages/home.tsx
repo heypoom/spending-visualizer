@@ -10,10 +10,29 @@ export default function Home() {
 
   const [errorMessage, setError] = createSignal<string | null>(null)
 
-  async function handleDrop(e: DragEvent) {
+  function handleDrop(e: DragEvent) {
     e.preventDefault()
+    processFile(e.dataTransfer?.files || new FileList())
+  }
 
-    const files = Array.from(e.dataTransfer.files)
+  function handleDragOver(e: DragEvent) {
+    e.preventDefault()
+  }
+
+  const headers = ["Amount", "Payment Date"]
+
+  function handleClickUploadFile(e: MouseEvent) {
+    e.preventDefault()
+    document.getElementById("statement-input")?.click()
+  }
+
+  function handleFileUpload(e: Event) {
+    e.preventDefault()
+    processFile((e.target as HTMLInputElement).files || new FileList())
+  }
+
+  async function processFile(fileList: FileList) {
+    const files = Array.from(fileList)
 
     const transactions = (
       await Promise.all(files.map(processStatementFile))
@@ -22,19 +41,20 @@ export default function Home() {
     setTransactions(transactions)
   }
 
-  async function handleDragOver(e: DragEvent) {
-    e.preventDefault()
-  }
-
-  const headers = ["Amount", "Payment Date"]
-
   return (
     <div>
+      <input
+        class="hidden"
+        type="file"
+        id="statement-input"
+        onchange={handleFileUpload}
+      />
       {!transactions() && (
         <div
           class="flex items-center justify-center min-h-screen"
           ondrop={handleDrop}
           ondragover={handleDragOver}
+          onclick={handleClickUploadFile}
         >
           <div class="flex flex-col items-center gap-y-6 bg-red">
             <div class="border border-bg-gray-400 border-width-8 w-28 h-28 rounded-full flex items-center justify-center">
