@@ -19,8 +19,8 @@ export interface Transaction {
   /** Amount in THB */
   amount: number
 
-  /** Amount in USD */
+  /** Amount in foreign currency e.g. USD, THB, JPY */
   foreignCurrencyAmount?: number
 
-  usdRate?: number
+  conversionRate?: number
 }
