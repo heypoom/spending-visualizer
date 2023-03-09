@@ -41,6 +41,28 @@ export default function Home() {
     setTransactions(transactions)
   }
 
+  function generateExports(format: "json" | "csv") {
+    if (format === "json") return JSON.stringify(transactions(), null, 2)
+
+    // TODO: create CSV export function.
+    if (format === "csv") return "unimplemented :)"
+  }
+
+  const exportFile = (format: "json" | "csv") => () => {
+    const output = generateExports(format)
+
+    const blob = new Blob([output], { type: "text/json" })
+
+    const el = window.document.createElement("a")
+    el.href = window.URL.createObjectURL(blob)
+    el.download = `statement.${format}`
+    document.body.appendChild(el)
+    el.click()
+    document.body.removeChild(el)
+  }
+
+  const formats = ["json", "csv"] as ["json", "csv"]
+
   return (
     <div>
       <input
@@ -49,6 +71,7 @@ export default function Home() {
         id="statement-input"
         onchange={handleFileUpload}
       />
+
       {!transactions() && (
         <div
           class="flex items-center justify-center min-h-screen"
@@ -66,49 +89,64 @@ export default function Home() {
         </div>
       )}
 
-      <div class="max-w-[640px] mx-auto">
-        <div class="flex flex-col items-center justify-center min-h-screen m-6">
-          <table class="min-w-full divide-y divide-gray-300">
-            <thead>
-              <tr>
-                <th
-                  scope="col"
-                  class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
-                >
-                  Description
-                </th>
+      {transactions() && (
+        <div>
+          <div class="fixed right-2 top-2 space-x-2">
+            {formats.map((format) => (
+              <button
+                class="px-4 py-2 shadow-md text-sm bg-gray-700 hover:bg-gray-800 active:bg-gray-600 text-white rounded-md"
+                onClick={exportFile(format)}
+              >
+                Export {format.toUpperCase()}
+              </button>
+            ))}
+          </div>
 
-                {headers.map((header) => (
-                  <th
-                    scope="col"
-                    class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900"
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+          <div class="max-w-[640px] mx-auto">
+            <div class="flex flex-col items-center justify-center min-h-screen m-6">
+              <table class="min-w-full divide-y divide-gray-300">
+                <thead>
+                  <tr>
+                    <th
+                      scope="col"
+                      class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
+                    >
+                      Description
+                    </th>
 
-            <tbody class="divide-y divide-gray-200">
-              {transactions()?.map((tx) => (
-                <tr>
-                  <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                    {tx.description}
-                  </td>
+                    {headers.map((header) => (
+                      <th
+                        scope="col"
+                        class="py-3.5 px-3 text-left text-sm font-semibold text-gray-900"
+                      >
+                        {header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
 
-                  <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
-                    {tx.amount}
-                  </td>
+                <tbody class="divide-y divide-gray-200">
+                  {transactions()?.map((tx) => (
+                    <tr>
+                      <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+                        {tx.description}
+                      </td>
 
-                  <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
-                    {tx.paymentDate.toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
+                        {tx.amount}
+                      </td>
+
+                      <td class="whitespace-nowrap py-4 px-3 text-sm text-gray-500">
+                        {tx.paymentDate.toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
