@@ -138,7 +138,9 @@ export default function Home() {
               <i class="fa-solid fa-file-arrow-up fa-3x"></i>
             </div>
 
-            <div class="m-4 text-3xl">อัพโหลดเอกสาร Statement ที่นี่</div>
+            <div class="m-4 text-3xl text-center leading-12">
+              อัพโหลดเอกสาร Statement ที่นี่
+            </div>
           </div>
         </div>
       )}
