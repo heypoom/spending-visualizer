@@ -1,4 +1,4 @@
-import {describe, it, expect} from 'vitest'
+import {describe, it, expect, vi} from 'vitest'
 import * as fs from 'fs/promises'
 
 import {
@@ -11,7 +11,12 @@ import {extractTextChunksFromPDF} from '../../utils/extractTextChunksFromPDF'
 describe('kasikorn credit parser', async () => {
   // TODO: create a mock statement resembling a real world with fake data.
   const sourceFile = await fs.readFile('./parsers/__tests__/fixtures/test.pdf')
-  const rawChunks = await extractTextChunksFromPDF(sourceFile)
+  const handleMaxPasswordTries = vi.fn()
+  const handleRequestPassword = vi.fn()
+  const rawChunks = await extractTextChunksFromPDF(sourceFile, {
+    handleMaxPasswordTries,
+    handleRequestPassword,
+  })
 
   it('processes each line items into a clean chunk of text', async () => {
     // Sanity check: there should be 5 pages.

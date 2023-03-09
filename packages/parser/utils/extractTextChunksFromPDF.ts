@@ -1,6 +1,8 @@
 import {getDocument, GlobalWorkerOptions} from 'pdfjs-dist'
 
 import {DocumentSource} from '../@types/DocumentSource'
+import {PasswordHandler} from '../@types/PasswordHandler';
+import { MAX_NUMBER_OF_TRIES } from '../constant/password';
 
 /**
  * Extracts chunks of texts from PDF.
@@ -8,7 +10,8 @@ import {DocumentSource} from '../@types/DocumentSource'
  * @todo write tests for this - find a sample source we can use in tests.
  **/
 export async function extractTextChunksFromPDF(
-  source: DocumentSource
+  source: DocumentSource, 
+  { handleRequestPassword, handleMaxPasswordTries }: PasswordHandler
 ): Promise<string[][]> {
   // Initialize PDF.js workers
   if (typeof window !== 'undefined' && !GlobalWorkerOptions.workerSrc) {
@@ -16,8 +19,24 @@ export async function extractTextChunksFromPDF(
       'pdfjs-dist/build/pdf.worker.entry'
     )
   }
+  
+  const documentProvider = getDocument(source);
 
-  const document = await getDocument(source).promise
+  let numberOfTries = 0;
+
+  documentProvider.onPassword = (
+    updatePassword: (password: string) => void,
+    _: any
+  ) => {
+    if (++numberOfTries > MAX_NUMBER_OF_TRIES) {
+      handleMaxPasswordTries()
+      return
+    }
+    handleRequestPassword(updatePassword)
+  }
+  
+
+  const document = await documentProvider.promise
   const pages: string[][] = []
 
   for (let numPage = 1; numPage <= document.numPages; numPage++) {
