@@ -60,9 +60,9 @@ export default function Home() {
   async function processFile(fileList: FileList) {
     const files = Array.from(fileList)
 
-    const transactions = (
-      await Promise.all(files.map(processStatementFile))
-    ).flat()
+    const transactions = (await Promise.all(files.map(processStatementFile)))
+      .flat()
+      .sort((txa, txb) => +txb.paymentDate - +txa.paymentDate)
 
     setTransactions(transactions)
   }
