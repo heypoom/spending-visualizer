@@ -22,7 +22,11 @@ export function extractTextChunksFromLine(contents: string[]): string[][] {
     const line = lines[i];
     if (!textChunks[tx]) textChunks[tx] = [];
 
-    textChunks[tx].push(line);
+    if (textChunks[tx].length === 0) {
+      isDate(line) && textChunks[tx].push(line);
+    } else {
+      textChunks[tx].push(line);
+    }
 
     if (isAmount(line)) tx += 1;
   }
@@ -30,11 +34,12 @@ export function extractTextChunksFromLine(contents: string[]): string[][] {
   // Only include line items that starts with 2 dates, the transaction date and the payment date.
   // Also, only include line items that has over 3 chunks.
   // Also, remove "Payment-BAY"
+  console.log(textChunks);
   const result = textChunks
     .filter((g) => isDate(g[0]) && isDate(g[1]))
     .filter((g) => g.length > 3)
     .filter((g) => !g.join("").includes("Payment-BAY"));
-  console.log(result);
+
   return result;
 }
 
