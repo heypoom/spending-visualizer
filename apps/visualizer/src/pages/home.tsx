@@ -1,6 +1,7 @@
 import type { Transaction } from "@parser"
 
 import { createSignal } from "solid-js"
+import { formatNumber } from "../utils/format"
 import { processStatementFile } from "../utils/readFile"
 
 export default function Home() {
@@ -63,7 +64,6 @@ export default function Home() {
     const transactions = (await Promise.all(files.map(processStatementFile)))
       .flat()
       .sort((txa, txb) => +txb.paymentDate - +txa.paymentDate)
-
     setTransactions(transactions)
   }
 
@@ -187,6 +187,23 @@ export default function Home() {
                       ))}
                     </tr>
                   ))}
+                  <tr>
+                    <td
+                      class={`whitespace-nowrap py-4 px-3 text-sm text-gray-500 text-semibold`}
+                    >
+                      Total
+                    </td>
+                    <td
+                      class={`whitespace-nowrap py-4 px-3 text-sm text-gray-500 text-semibold`}
+                    >
+                      {formatNumber(
+                        transactions()?.reduce(
+                          (acc, cur) => acc + cur.amount,
+                          0
+                        )
+                      )}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
