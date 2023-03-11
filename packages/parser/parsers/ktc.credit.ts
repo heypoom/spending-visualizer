@@ -4,10 +4,11 @@ import { parseDate } from "../utils/parseDate";
 
 const PATTERN_DATE = /\d{2}\/\d{2}\/\d{2}/;
 const PATTERN_AMOUNT = /^-?\b\d[\d,.]*\b\s?-?$/;
+const PATTERN_LOCATION = /^(DEU|USA|US|JPY|TH|THB)/;
 
 const isDate = (s: string) => PATTERN_DATE.test(s);
 const isAmount = (s: string) => PATTERN_AMOUNT.test(s) && s.includes(".");
-
+const isLocation = (s: string) => PATTERN_LOCATION.test(s);
 export function extractTextChunksFromLine(contents: string[]): string[][] {
   // We start at the first date (e.g. 10/02/2023)
   const startIndex = contents.findIndex(isDate);
@@ -33,11 +34,11 @@ export function extractTextChunksFromLine(contents: string[]): string[][] {
 
   // Only include line items that starts with 2 dates, the transaction date and the payment date.
   // Also, only include line items that has over 3 chunks.
-  // Also, remove "Payment-BAY"
+  // Also, remove "Payment"
   const result = textChunks
     .filter((g) => isDate(g[0]) && isDate(g[1]))
     .filter((g) => g.length > 3)
-    .filter((g) => !g.join("").includes("Payment-BAY"));
+    .filter((g) => !g.join("").includes("Payment"));
 
   return result;
 }
@@ -61,7 +62,7 @@ export function chunksToTransaction(chunks: string[]): Transaction | null {
     transactionDate: parseDate(transactionDate),
     paymentDate: parseDate(paymentDate),
     description,
-    description2,
+    description2: isLocation(description2) ? description2 : null,
     amount: intoAmount(amount),
   };
 
