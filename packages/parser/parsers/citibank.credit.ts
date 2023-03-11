@@ -27,8 +27,8 @@ export function extractTextChunksFromLine(contents: string[]): string[][] {
 	let yearIdentified: boolean = false
 	let tempYearIdent: string[] = []
 
-	// loop each line
-	for (const content of contents) {
+	// first page is previous balance, prune some of those out before start looping
+	for (const content of contents[0] === 'PREVIOUS' && contents[1] === 'BALANCE' ? contents.slice(4) : contents) {
 		/**
 		 * Year identifier parser
 		 */
@@ -169,7 +169,7 @@ export const parseCitibankCreditStatement: StatementParser = pages => {
 		.find(o => o[0].startsWith('>>>'))[0]
 		.split(':')[1]
 
-	// console.log({pages, extractedChunks})
+	console.log({pages, extractedChunks})
 
 	return extractedChunks
 		.filter(o => !o[0].startsWith('>>>'))
