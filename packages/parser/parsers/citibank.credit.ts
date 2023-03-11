@@ -17,7 +17,7 @@ const foriegnCurrencies = [
 ]
 
 export function extractTextChunksFromLine(contents: string[]): string[][] {
-	type Mode = 'init' | 'seek' | 'amount' | 'date1' | 'date2' | 'provider'
+	type Mode = 'seek' | 'amount' | 'date1' | 'date2' | 'provider' | 'finalize'
 	let mode: Mode = 'seek'
 
 	let parsedItems: string[][] = []
@@ -57,71 +57,75 @@ export function extractTextChunksFromLine(contents: string[]): string[][] {
 		/**
 		 * Regular parser
 		 */
-		// Seek mode: finding begining of the transaction, if find possible then switch to mode date1
-		if (mode === 'seek' && content.match(dateRegex) !== null) {
+		// seek mode: looking for the begining string which is an amount
+		if (mode === 'seek' && content.match(amountRegex) !== null) {
 			tempValue = content
-			mode = 'date1'
+			mode = 'amount'
 		}
-		// Date1 mode: get posting date
-		else if (mode === 'date1') {
-			// if this value is not a date then reject clear and go back to seek mode
-			if (content.match(monthRegex)) {
-				tempItem.push(`${tempValue} ${content}`)
-				tempValue = ''
-				mode = 'date2'
-			} else {
-				tempValue = ''
-				mode = 'seek'
-			}
-		}
-		// Date 2 mode: get transaction date
-		else if (mode === 'date2') {
-			if (content.match(dateRegex)) {
-				tempValue = content
-			} else if (content.match(monthRegex)) {
-				tempItem.push(`${tempValue} ${content}`)
-				tempValue = ''
-				mode = 'provider'
-			}
-		}
-		// Provider mode: scan for provider name until hit amount
-		else if (mode === 'provider') {
-			if (content.match(amountRegex) === null) {
-				tempValue += ` ${content}`
-			} else if (foriegnCurrencies.some(currency => tempValue.endsWith(' ' + currency))) {
-				tempValue += ` ${content}`
-			} else {
-				tempItem.push(tempValue.trim())
-				tempValue = content
-				mode = 'amount'
-			}
-		}
-		// Amount mode: get final amount in thb
+		// amount mode: finalize billed amount
 		else if (mode === 'amount') {
+			// if end with satang, then tx line is valid. else cleanup and revert to seek mode
 			if (content.match(satangRegex) !== null) {
 				tempItem.push(`${tempValue}${content}`)
-
-				// push
-				parsedItems.push(tempItem)
-
-				// reset
-				tempItem = []
+				tempValue = ''
+				mode = 'date1'
+			} else {
 				tempValue = ''
 				mode = 'seek'
+			}
+		}
+		// date 1 mode: parse posting date, date 2 mode: parse tx date
+		else if (mode === 'date1' || mode === 'date2') {
+			if (content.match(dateRegex) !== null) {
+				tempValue = content
+			} else if (content.match(monthRegex) !== null) {
+				tempItem.push(`${tempValue} ${content}`)
+				tempValue = ''
+				mode = mode === 'date1' ? 'date2' : 'provider'
+			}
+		}
+		// provider mode: parse tx provider, keep adding until found amount string
+		else if (mode === 'provider') {
+			if (content.match(amountRegex) !== null) {
+				tempItem.push(tempValue)
+				tempValue = content
+				mode = 'finalize'
 			} else {
-				tempValue = tempItem[tempItem.length - 1] + ` ${tempValue}`
+				tempValue += ` ${content}`
+			}
+		}
+		// finalize mode: handle special cases
+		else if (mode === 'finalize') {
+			let lastItemValue = tempItem[tempItem.length - 1]
+			// if next value is not a satang, this could be because provider name contains number
+			if (content.match(satangRegex) === null) {
+				tempValue = `${lastItemValue} ${tempValue} ${content}`
 				tempItem.pop()
 				mode = 'provider'
+			}
+			// when when satang found, maybe this could be foriegn currency
+			else if (foriegnCurrencies.some(currency => lastItemValue.endsWith(` ${currency}`))) {
+				tempValue = `${lastItemValue} ${tempValue}${content}`
+				tempItem.pop()
+				mode = 'provider'
+			}
+			// otherwise passed!
+			else {
+				parsedItems.push(tempItem)
+				tempItem = [`${tempValue}${content}`]
+				tempValue = ''
+				mode = 'date1'
 			}
 		}
 	}
 
 	// Poom's kasikorn implementation put transaction date first before posting date
+	// final build: [txDate, postDate, provider, amount]
 	return parsedItems
-		.map(([postingDate, transactionDate, ...rest]) =>
-			postingDate.startsWith('>>>')
-				? [postingDate]
-				: [transactionDate, postingDate, ...rest]
+		.map(([amount, postingDate, transactionDate, provider]) =>
+		amount.startsWith('>>>')
+				? [amount]
+				: [transactionDate, postingDate, provider, amount]
 		)
 }
 
@@ -165,23 +169,9 @@ export const parseCitibankCreditStatement: StatementParser = pages => {
 		.find(o => o[0].startsWith('>>>'))[0]
 		.split(':')[1]
 
-		console.log({pages, extractedChunks})
+	// console.log({pages, extractedChunks})
 
 	return extractedChunks
 		.filter(o => !o[0].startsWith('>>>'))
 		.map(chunksToTransaction(statementYear))
 }
-
-// "130"
-// ".69"
-// "07"
-// "FEB"
-// "02"
-// "FEB"
-// "PIXIV"
-// "FANBOX"
-// "TOKYO"
-// "JP"
-// "YEN"
-// "500"
-// ".00"
