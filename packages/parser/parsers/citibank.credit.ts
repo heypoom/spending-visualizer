@@ -28,7 +28,9 @@ export function extractTextChunksFromLine(contents: string[]): string[][] {
 	let tempYearIdent: string[] = []
 
 	// first page is previous balance, prune some of those out before start looping
-	for (const content of contents[0] === 'PREVIOUS' && contents[1] === 'BALANCE' ? contents.slice(4) : contents) {
+	for (const content of contents[0] === 'PREVIOUS' && contents[1] === 'BALANCE'
+		? contents.slice(4)
+		: contents) {
 		/**
 		 * Year identifier parser
 		 */
@@ -104,7 +106,11 @@ export function extractTextChunksFromLine(contents: string[]): string[][] {
 				mode = 'provider'
 			}
 			// when when satang found, maybe this could be foriegn currency
-			else if (foriegnCurrencies.some(currency => lastItemValue.endsWith(` ${currency}`))) {
+			else if (
+				foriegnCurrencies.some(currency =>
+					lastItemValue.endsWith(` ${currency}`)
+				)
+			) {
 				tempValue = `${lastItemValue} ${tempValue}${content}`
 				tempItem.pop()
 				mode = 'provider'
@@ -121,12 +127,11 @@ export function extractTextChunksFromLine(contents: string[]): string[][] {
 
 	// Poom's kasikorn implementation put transaction date first before posting date
 	// final build: [txDate, postDate, provider, amount]
-	return parsedItems
-		.map(([amount, postingDate, transactionDate, provider]) =>
+	return parsedItems.map(([amount, postingDate, transactionDate, provider]) =>
 		amount.startsWith('>>>')
-				? [amount]
-				: [transactionDate, postingDate, provider, amount]
-		)
+			? [amount]
+			: [transactionDate, postingDate, provider, amount]
+	)
 }
 
 const intoAmount = (s: string | null | undefined) => {
@@ -150,8 +155,13 @@ export const chunksToTransaction =
 		const processedPostingDate = new Date(`${postingDate} ${year}`)
 		let processedTransactionDate = new Date(`${transactionDate} ${year}`)
 
-		if (processedPostingDate.valueOf() - processedTransactionDate.valueOf() < 0) {
-			processedTransactionDate = new Date(`${transactionDate} ${Number(year) - 1}`)
+		if (
+			processedPostingDate.valueOf() - processedTransactionDate.valueOf() <
+			0
+		) {
+			processedTransactionDate = new Date(
+				`${transactionDate} ${Number(year) - 1}`
+			)
 		}
 
 		return {
@@ -169,7 +179,7 @@ export const parseCitibankCreditStatement: StatementParser = pages => {
 		.find(o => o[0].startsWith('>>>'))[0]
 		.split(':')[1]
 
-	console.log({pages, extractedChunks})
+	console.log({ pages, extractedChunks })
 
 	return extractedChunks
 		.filter(o => !o[0].startsWith('>>>'))
