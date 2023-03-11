@@ -1,28 +1,42 @@
 import type { Transaction } from "@parser"
 
-import { createSignal } from "solid-js"
+import { createEffect, createSignal } from "solid-js"
 import { formatNumber } from "../utils/format"
 import { processStatementFile } from "../utils/readFile"
 
+interface Column {
+  title: string
+  class?: string
+  accessor(tx: Transaction): string | number
+}
+
+const CACHE_NAME = "bills"
+
 export default function Home() {
+  const [billList, setBillList] = createSignal<string[]>([])
   const [transactions, setTransactions] = createSignal<Transaction[] | null>(
     null
   )
+  createEffect(() => {
+    const cacheTxsRaw = localStorage.getItem(CACHE_NAME)
+    if (!transactions() && cacheTxsRaw) {
+      const cacheTxs: Transaction[] = JSON.parse(cacheTxsRaw)
+      setBillList(Object.keys(cacheTxs))
+      const latestBillName = Object.keys(cacheTxs)[0]
+      if (latestBillName) {
+        setTransactions(cacheTxs[latestBillName])
+      }
+    }
+  })
 
   const [errorMessage, setError] = createSignal<string | null>(null)
 
   let passwordInputRef: HTMLInputElement | undefined = undefined
 
-  interface Column {
-    title: string
-    class?: string
-    accessor(tx: Transaction): string | number
-  }
-
   const columns: Column[] = [
     {
       title: "Payment Date",
-      accessor: (tx) => tx?.paymentDate?.toLocaleDateString(),
+      accessor: (tx) => new Date(tx?.paymentDate)?.toLocaleDateString(),
       class: "text-semibold",
     },
     {
@@ -60,11 +74,29 @@ export default function Home() {
 
   async function processFile(fileList: FileList) {
     const files = Array.from(fileList)
-
     const transactions = (await Promise.all(files.map(processStatementFile)))
       .flat()
       .sort((txa, txb) => +txb.paymentDate - +txa.paymentDate)
-    setTransactions(transactions)
+    const cacheTxsRaw = localStorage.getItem(CACHE_NAME)
+    const cacheTxs = JSON.parse(cacheTxsRaw)
+    const billName = prompt("bill name?")
+    if (billName) {
+      localStorage.setItem(
+        CACHE_NAME,
+        JSON.stringify({
+          ...cacheTxs,
+          [billName]: transactions,
+        })
+      )
+      setBillList([...billList(), billName])
+      setTransactions(transactions)
+    }
+  }
+
+  const handleSelectBill = (billName: string) => {
+    const cacheTxsRaw = localStorage.getItem(CACHE_NAME)
+    const cacheTxs = JSON.parse(cacheTxsRaw)
+    setTransactions(cacheTxs[billName])
   }
 
   function generateExports(format: "json" | "csv") {
@@ -145,6 +177,24 @@ export default function Home() {
           </div>
         </div>
       )}
+      <div class="fixed left-2 top-2 grid gap-2">
+        <button
+          class="px-4 py-2 shadow-md text-sm bg-gray-700 hover:bg-gray-800 active:bg-gray-600 text-white rounded-md"
+          onClick={handleClickUploadFile}
+        >
+          Add new Bill
+        </button>
+
+        {billList().map((billName) => (
+          <button
+            class="px-4 py-2 shadow-md text-sm bg-gray-700 hover:bg-gray-800 active:bg-gray-600 text-white rounded-md"
+            // onClick={exportFile(format)}
+            onClick={() => handleSelectBill(billName)}
+          >
+            See {billName}
+          </button>
+        ))}
+      </div>
 
       {transactions() && (
         <div>

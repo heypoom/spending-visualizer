@@ -34,7 +34,6 @@ export function extractTextChunksFromLine(contents: string[]): string[][] {
   // Only include line items that starts with 2 dates, the transaction date and the payment date.
   // Also, only include line items that has over 3 chunks.
   // Also, remove "Payment-BAY"
-  console.log(textChunks);
   const result = textChunks
     .filter((g) => isDate(g[0]) && isDate(g[1]))
     .filter((g) => g.length > 3)
