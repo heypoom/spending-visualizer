@@ -17,6 +17,7 @@
     "@solidjs/router": "^0.7.0",
     "apexcharts": "^3.37.1",
     "clsx": "^1.2.1",
+    "dayjs": "^1.11.7",
     "solid-apexcharts": "^0.2.4",
     "solid-js": "^1.6.10"
   }

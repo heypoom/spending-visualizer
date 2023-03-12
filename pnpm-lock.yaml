@@ -17,6 +17,7 @@ importers:
       '@solidjs/router': ^0.7.0
       apexcharts: ^3.37.1
       clsx: ^1.2.1
+      dayjs: ^1.11.7
       solid-apexcharts: ^0.2.4
       solid-js: ^1.6.10
       vite: ^4.1.1
@@ -26,6 +27,7 @@ importers:
       '@solidjs/router': 0.7.0_solid-js@1.6.11
       apexcharts: 3.37.1
       clsx: 1.2.1
+      dayjs: 1.11.7
       solid-apexcharts: 0.2.4_ayuckuiyavnnpygryyqddx5um4
       solid-js: 1.6.11
     devDependencies:
@@ -955,6 +957,10 @@ packages:
 
   /csstype/3.1.1:
     resolution: {integrity: sha512-DJR/VvkAvSZW9bTouZue2sSxDwdTN92uHjqeKVm+0dAqdfNykRzQ95tay8aXMBAAPpUiq4Qcug2L7neoRh2Egw==}
+
+  /dayjs/1.11.7:
+    resolution: {integrity: sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==}
+    dev: false
 
   /debug/4.3.4:
     resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}

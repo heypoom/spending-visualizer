@@ -2,10 +2,10 @@ import { createSignal, createMemo } from "solid-js"
 import { SolidApexCharts } from "solid-apexcharts"
 import type { Transaction } from "@parser"
 import cx from "clsx"
-
+import dayjs from "dayjs"
 type CountType = "number" | "amount"
 
-export const TopTenPieChart = (props: {
+export const TimeBarChart = (props: {
   transactions: Transaction[]
   name: string
 }) => {
@@ -13,12 +13,13 @@ export const TopTenPieChart = (props: {
 
   const formatData = createMemo(() =>
     props?.transactions.reduce((acc, cur) => {
-      if (!acc[cur.description]) acc[cur.description] = 0
+      const key = dayjs(cur.transactionDate).format("DD-MMM-YYYY")
+      if (!acc[key]) acc[key] = 0
 
       if (type() === "number") {
-        acc[cur.description]++
+        acc[key]++
       } else if (type() === "amount") {
-        acc[cur.description] += cur.amount
+        acc[key] += cur.amount
       }
       return acc
     }, {} as { [s: string]: number })
@@ -28,7 +29,7 @@ export const TopTenPieChart = (props: {
       ({
         chart: {
           width: 640,
-          height: 600,
+          height: 400,
           id: props?.name,
         },
         responsive: [
@@ -44,8 +45,12 @@ export const TopTenPieChart = (props: {
         labels: Object.keys(formatData()),
       } as ApexCharts.ApexOptions)
   )
-  const series = createMemo(() => Object.values(formatData()) as number[])
-
+  const series = createMemo(() => [
+    {
+      name: type(),
+      data: Object.values(formatData()) as number[],
+    },
+  ])
   // options and series can be a store or signal
   if (props?.transactions.length === 0) return <p>none</p>
   return (
@@ -65,7 +70,7 @@ export const TopTenPieChart = (props: {
           </button>
         ))}
       </div>
-      <SolidApexCharts type="pie" options={options()} series={series()} />
+      <SolidApexCharts type="bar" options={options()} series={series()} />
     </div>
   )
 }

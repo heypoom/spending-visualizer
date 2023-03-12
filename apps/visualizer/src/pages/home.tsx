@@ -6,6 +6,7 @@ import { formatNumber } from "../utils/format"
 import { processStatementFile } from "../utils/readFile"
 import cx from "clsx"
 import { TopTenPieChart } from "../components/TopTenPieChart"
+import { TimeBarChart } from "../components/TimeBarChart"
 interface Column {
   title: string
   class?: string
@@ -230,10 +231,16 @@ export default function Home() {
 
           <div class="max-w-[640px] mx-auto">
             <div class="flex flex-col items-center justify-center min-h-screen m-6">
-              <TopTenPieChart
-                transactions={selectedStatement()?.txs ?? []}
-                name={selectedStatement()?.name}
-              />
+              <div class="flex flex-col gap-4">
+                <TopTenPieChart
+                  transactions={selectedStatement()?.txs ?? []}
+                  name={selectedStatement()?.name}
+                />
+                <TimeBarChart
+                  transactions={selectedStatement()?.txs ?? []}
+                  name={selectedStatement()?.name}
+                />
+              </div>
 
               <table class="min-w-full divide-y divide-gray-300">
                 <thead>
