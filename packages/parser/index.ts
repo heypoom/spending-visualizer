@@ -36,7 +36,6 @@ export async function parseStatement(
   const rawString = rawChunks.flat().join("");
   const type = findStatementType(rawString);
   const bank = findBankType(rawString);
-  console.log(bank, type);
   if (type === "credit") {
     if (bank === "kasikorn") return parseKasikornCreditStatement(rawChunks);
 
