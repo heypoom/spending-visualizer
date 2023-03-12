@@ -32,6 +32,13 @@ export const TimeBarChart = (props: {
           height: 400,
           id: props?.name,
         },
+        yaxis: {
+          decimalsInFloat: 2,
+        },
+        xaxis: {
+          tickPlacement: "on",
+          type: "datetime",
+        },
         responsive: [
           {
             breakpoint: 600,
@@ -42,6 +49,7 @@ export const TimeBarChart = (props: {
             },
           },
         ],
+
         labels: Object.keys(formatData()),
       } as ApexCharts.ApexOptions)
   )
