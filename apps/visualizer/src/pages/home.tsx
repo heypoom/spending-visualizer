@@ -5,6 +5,7 @@ import { cache } from "../utils/cache"
 import { formatNumber } from "../utils/format"
 import { processStatementFile } from "../utils/readFile"
 import cx from "clsx"
+import { TopTenPieChart } from "../components/TopTenPieChart"
 interface Column {
   title: string
   class?: string
@@ -214,7 +215,7 @@ export default function Home() {
           ))}
       </div>
 
-      {selectedStatement()?.txs && (
+      {selectedStatement() && (
         <div>
           <div class="fixed right-2 top-2 space-x-2">
             {formats.map((format) => (
@@ -229,6 +230,11 @@ export default function Home() {
 
           <div class="max-w-[640px] mx-auto">
             <div class="flex flex-col items-center justify-center min-h-screen m-6">
+              <TopTenPieChart
+                transactions={selectedStatement()?.txs ?? []}
+                name={selectedStatement()?.name}
+              />
+
               <table class="min-w-full divide-y divide-gray-300">
                 <thead>
                   <tr>
