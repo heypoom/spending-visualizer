@@ -1,31 +1,26 @@
 import type { Transaction } from "@parser"
 
 import { createEffect, createSignal } from "solid-js"
+import { cache } from "../utils/cache"
 import { formatNumber } from "../utils/format"
 import { processStatementFile } from "../utils/readFile"
-
+import cx from "clsx"
 interface Column {
   title: string
   class?: string
   accessor(tx: Transaction): string | number
 }
 
-const CACHE_NAME = "bills"
-
 export default function Home() {
-  const [billList, setBillList] = createSignal<string[]>([])
-  const [transactions, setTransactions] = createSignal<Transaction[] | null>(
-    null
-  )
+  const [statementList, setStatementList] = createSignal<string[]>([])
+  const [selectedStatement, setSelectedStatement] = createSignal<{
+    txs: Transaction[]
+    name: string
+  } | null>(null)
   createEffect(() => {
-    const cacheTxsRaw = localStorage.getItem(CACHE_NAME)
-    if (!transactions() && cacheTxsRaw) {
-      const cacheTxs: Transaction[] = JSON.parse(cacheTxsRaw)
-      setBillList(Object.keys(cacheTxs))
-      const latestBillName = Object.keys(cacheTxs)[0]
-      if (latestBillName) {
-        setTransactions(cacheTxs[latestBillName])
-      }
+    const cacheTxs = cache.getStatements()
+    if (!selectedStatement() && cacheTxs) {
+      setStatementList(Object.keys(cacheTxs))
     }
   })
 
@@ -41,7 +36,7 @@ export default function Home() {
     },
     {
       title: "Amount",
-      accessor: (tx) => tx?.amount,
+      accessor: (tx) => formatNumber(tx?.amount),
     },
     {
       title: "Description",
@@ -74,33 +69,42 @@ export default function Home() {
 
   async function processFile(fileList: FileList) {
     const files = Array.from(fileList)
-    const transactions = (await Promise.all(files.map(processStatementFile)))
-      .flat()
-      .sort((txa, txb) => +txb.paymentDate - +txa.paymentDate)
-    const cacheTxsRaw = localStorage.getItem(CACHE_NAME)
-    const cacheTxs = JSON.parse(cacheTxsRaw)
-    const billName = prompt("bill name?")
-    if (billName) {
-      localStorage.setItem(
-        CACHE_NAME,
-        JSON.stringify({
-          ...cacheTxs,
-          [billName]: transactions,
-        })
-      )
-      setBillList([...billList(), billName])
-      setTransactions(transactions)
-    }
+    let newCacheTxs = {}
+    await Promise.all(
+      files.map(async (file) => {
+        const transactions = (await processStatementFile(file)).sort(
+          (txa, txb) => +txb.paymentDate - +txa.paymentDate
+        )
+
+        const billName = file.name
+        newCacheTxs = cache.addStatement(billName, transactions)
+      })
+    )
+
+    setStatementList(Object.keys(newCacheTxs))
+    setSelectedStatement({
+      name: Object.keys(newCacheTxs)[0],
+      txs: newCacheTxs[Object.keys(newCacheTxs)[0]] as Transaction[],
+    })
   }
 
   const handleSelectBill = (billName: string) => {
-    const cacheTxsRaw = localStorage.getItem(CACHE_NAME)
-    const cacheTxs = JSON.parse(cacheTxsRaw)
-    setTransactions(cacheTxs[billName])
+    const cacheTxs = cache.getStatements()
+    setSelectedStatement({
+      name: billName,
+      txs: cacheTxs[billName] as Transaction[],
+    })
+  }
+  const handleRemoveBill = (billName: string) => {
+    const newCacheTxs = cache.removeStatement(billName)
+
+    setStatementList(Object.keys(newCacheTxs))
+    setSelectedStatement(null)
   }
 
   function generateExports(format: "json" | "csv") {
-    if (format === "json") return JSON.stringify(transactions(), null, 2)
+    if (format === "json")
+      return JSON.stringify(selectedStatement().txs, null, 2)
 
     // TODO: create CSV export function.
     if (format === "csv") {
@@ -115,8 +119,8 @@ export default function Home() {
         "Conversion Rate",
       ].join(", ")
 
-      const values = transactions()
-        .map((t) =>
+      const values = selectedStatement()
+        ?.txs.map((t) =>
           [
             t.paymentDate,
             t.transactionDate,
@@ -159,7 +163,7 @@ export default function Home() {
         multiple
       />
 
-      {!transactions() && (
+      {!selectedStatement()?.txs && (
         <div
           class="flex items-center justify-center min-h-screen"
           ondrop={handleDrop}
@@ -185,18 +189,32 @@ export default function Home() {
           Add new Bill
         </button>
 
-        {billList().map((billName) => (
-          <button
-            class="px-4 py-2 shadow-md text-sm bg-gray-700 hover:bg-gray-800 active:bg-gray-600 text-white rounded-md"
-            // onClick={exportFile(format)}
-            onClick={() => handleSelectBill(billName)}
-          >
-            See {billName}
-          </button>
-        ))}
+        {statementList()
+          .sort()
+          .map((name) => (
+            <div class="flex gap-2">
+              <button
+                class={cx("px-4 py-2 shadow-md text-sm rounded-md", {
+                  "bg-gray-700 active:bg-gray-600 text-white hover:bg-gray-800":
+                    name === selectedStatement()?.name,
+                  "bg-white active:bg-gray-600 text-gray-700 hover:bg-gray-800 hover:text-white":
+                    name !== selectedStatement()?.name,
+                })}
+                onClick={() => handleSelectBill(name)}
+              >
+                See {name}
+              </button>
+              <button
+                class="px-4 py-2 shadow-md text-sm bg-gray-700 hover:bg-gray-800 active:bg-gray-600 text-white rounded-md"
+                onClick={() => handleRemoveBill(name)}
+              >
+                CLEAR
+              </button>
+            </div>
+          ))}
       </div>
 
-      {transactions() && (
+      {selectedStatement()?.txs && (
         <div>
           <div class="fixed right-2 top-2 space-x-2">
             {formats.map((format) => (
@@ -226,7 +244,7 @@ export default function Home() {
                 </thead>
 
                 <tbody class="divide-y divide-gray-200">
-                  {transactions()?.map((tx) => (
+                  {selectedStatement()?.txs?.map((tx) => (
                     <tr>
                       {columns.map((column) => (
                         <td
@@ -247,7 +265,7 @@ export default function Home() {
                       class={`whitespace-nowrap py-4 px-3 text-sm text-gray-500 text-semibold`}
                     >
                       {formatNumber(
-                        transactions()?.reduce(
+                        selectedStatement()?.txs?.reduce(
                           (acc, cur) => acc + cur.amount,
                           0
                         )
