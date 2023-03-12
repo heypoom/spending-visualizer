@@ -20,7 +20,7 @@ export const processStatementFile = async (
     const r = new FileReader()
     r.onload = () =>
       resolve(
-        parseStatement("kasikorn", "credit", r.result, {
+        parseStatement("ktc", "credit", r.result, {
           handleRequestPassword,
           handleMaxPasswordTries,
         })
