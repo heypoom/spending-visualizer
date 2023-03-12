@@ -186,7 +186,7 @@ export default function Home() {
           class="px-4 py-2 shadow-md text-sm bg-gray-700 hover:bg-gray-800 active:bg-gray-600 text-white rounded-md"
           onClick={handleClickUploadFile}
         >
-          Add new Bill
+          Add new Statement
         </button>
 
         {statementList()
@@ -202,7 +202,7 @@ export default function Home() {
                 })}
                 onClick={() => handleSelectBill(name)}
               >
-                See {name}
+                {name}
               </button>
               <button
                 class="px-4 py-2 shadow-md text-sm bg-gray-700 hover:bg-gray-800 active:bg-gray-600 text-white rounded-md"
