@@ -4,23 +4,26 @@ export interface Transaction {
    *
    * @todo parse this into JS date.
    **/
-  transactionDate: Date
+  transactionDate: Date;
 
   /** Date when the payment went through. **/
-  paymentDate: Date
+  paymentDate: Date;
 
   // TODO: parse into a more deterministic format.
   // for example, description here could mean a lot of different things.
   // TODO: to document the variations.
-  description: string
-  description2?: string
-  description3?: string
+  description: string;
+  description2?: string;
+  description3?: string;
 
   /** Amount in THB */
-  amount: number
+  amount: number;
 
   /** Amount in foreign currency e.g. USD, THB, JPY */
-  foreignCurrencyAmount?: number
+  foreignCurrencyAmount?: number;
 
-  conversionRate?: number
+  conversionRate?: number;
+
+  /** deposit or withdrawal, for bank statement */
+  type?: "deposit" | "withdrawal";
 }
