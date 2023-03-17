@@ -31,43 +31,17 @@ export function extractTransactionsFromPdf(
 
   // First transaction received is initial balance.
   const initialBalance = getInitialBalance(txChunks[0]);
+
+  // Extract chunk of transactions and label type of transaction [withdrawal | deposit]
   const transactions = txChunks.flatMap<Transaction & { remaining: number }>(
     (txChunk) => extractTransactionChunk(txChunk, header) ?? []
   );
-
-  const labeledTransaction: Transaction[] = transactions.reduce(
-    (accumulator, transaction, index) => {
-      let isTxWithdraw: boolean;
-      if (index === 0 && initialBalance) {
-        isTxWithdraw = initialBalance > transaction.remaining;
-      } else {
-        isTxWithdraw = initialBalance > transactions[index - 1].remaining;
-      }
-
-      const {
-        transactionDate,
-        paymentDate,
-        amount,
-        description,
-        description2,
-      } = transaction;
-
-      return [
-        ...accumulator,
-        {
-          transactionDate,
-          paymentDate,
-          amount,
-          description,
-          description2,
-          type: isTxWithdraw ? "withdrawal" : "deposit",
-        },
-      ];
-    },
-    []
+  const labeledTransactions = labelTransactionType(
+    transactions,
+    initialBalance
   );
 
-  return labeledTransaction;
+  return labeledTransactions;
 }
 
 // Get header data.
@@ -202,4 +176,34 @@ export function getInitialBalance(txChunk: string[]): number | undefined {
   if (remainingStr) remaining = parseFloat(remainingStr.replace(",", ""));
 
   return remaining;
+}
+
+export function labelTransactionType(
+  transactionWithRemaining: (Transaction & { remaining: number })[],
+  initialBalance: number
+): Transaction[] {
+  return transactionWithRemaining.reduce((accumulator, transaction, index) => {
+    let isTxWithdraw: boolean;
+    if (index === 0 && initialBalance) {
+      isTxWithdraw = initialBalance > transaction.remaining;
+    } else {
+      isTxWithdraw =
+        initialBalance > transactionWithRemaining[index - 1].remaining;
+    }
+
+    const { transactionDate, paymentDate, amount, description, description2 } =
+      transaction;
+
+    return [
+      ...accumulator,
+      {
+        transactionDate,
+        paymentDate,
+        amount,
+        description,
+        description2,
+        type: isTxWithdraw ? "withdrawal" : "deposit",
+      },
+    ];
+  }, []);
 }
