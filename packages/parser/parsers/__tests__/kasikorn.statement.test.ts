@@ -45,5 +45,6 @@ describe("kasikorn statment parser", async () => {
       "เพื่อชําระ Ref XNGNA โทโฮ จิเกียว (ไทยแลนด์)"
     );
     expect(sampleTransaction.description2).toBe("K PLUS");
+    expect(sampleTransaction.type).toBe("withdrawal");
   });
 });

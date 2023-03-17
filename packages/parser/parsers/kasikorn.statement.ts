@@ -29,11 +29,45 @@ export function extractTransactionsFromPdf(
   const lineChunks = extractTextChunksFromLine(contents);
   const txChunks = extractChunkFromLine(lineChunks);
 
-  const transactions = txChunks.flatMap(
+  // First transaction received is initial balance.
+  const initialBalance = getInitialBalance(txChunks[0]);
+  const transactions = txChunks.flatMap<Transaction & { remaining: number }>(
     (txChunk) => extractTransactionChunk(txChunk, header) ?? []
   );
 
-  return transactions;
+  const labeledTransaction: Transaction[] = transactions.reduce(
+    (accumulator, transaction, index) => {
+      let isTxWithdraw: boolean;
+      if (index === 0 && initialBalance) {
+        isTxWithdraw = initialBalance > transaction.remaining;
+      } else {
+        isTxWithdraw = initialBalance > transactions[index - 1].remaining;
+      }
+
+      const {
+        transactionDate,
+        paymentDate,
+        amount,
+        description,
+        description2,
+      } = transaction;
+
+      return [
+        ...accumulator,
+        {
+          transactionDate,
+          paymentDate,
+          amount,
+          description,
+          description2,
+          type: isTxWithdraw ? "withdrawal" : "deposit",
+        },
+      ];
+    },
+    []
+  );
+
+  return labeledTransaction;
 }
 
 // Get header data.
@@ -107,7 +141,7 @@ export function extractChunkFromLine(lineChunks: string[][]): string[][] {
 export function extractTransactionChunk(
   txChunk: string[],
   header: StatementMetadata
-): Transaction | undefined {
+): (Transaction & { remaining: number }) | undefined {
   // Timestamp
   const dateStr = txChunk
     .find((str) => str.match(PATTERN_DATE_DASH))
@@ -123,6 +157,13 @@ export function extractTransactionChunk(
       .set("minute", parseFloat(timeStr[1]));
   }
 
+  // Remaining
+  let remaining: number;
+  const remainingStr = txChunk.find((item) =>
+    item.match(PATTERN_DECIMAL_AMOUNT)
+  );
+  if (remainingStr) remaining = parseFloat(remainingStr.replace(",", ""));
+
   // Amount
   let amount: number;
   const isAmountStr = txChunk[txChunk.length - 1].match(PATTERN_DECIMAL_AMOUNT);
@@ -136,7 +177,7 @@ export function extractTransactionChunk(
   );
   const channel = slicedTimestampChunk.slice(0, amountLeftIndex).join();
 
-  // Amount
+  // Description
   const description = slicedTimestampChunk
     .slice(amountLeftIndex + 1, slicedTimestampChunk.length - 2)
     .join();
@@ -148,6 +189,17 @@ export function extractTransactionChunk(
       amount,
       description,
       description2: channel,
+      remaining,
     };
   }
+}
+
+export function getInitialBalance(txChunk: string[]): number | undefined {
+  let remaining: number;
+  const remainingStr = txChunk.find((item) =>
+    item.match(PATTERN_DECIMAL_AMOUNT)
+  );
+  if (remainingStr) remaining = parseFloat(remainingStr.replace(",", ""));
+
+  return remaining;
 }
