@@ -127,12 +127,19 @@ export function extractTransactionChunk(
 
   const timeStr = txChunk.find((str) => str.match(PATTERN_TIME))?.split(":");
 
-  let transactionDate = header.from;
-  transactionDate.setDate(parseFloat(dateStr[0]));
+  let transactionDateNumber: number;
 
   if (timeStr !== undefined) {
-    transactionDate.setHours(parseFloat(timeStr[0]));
-    transactionDate.setMinutes(parseFloat(timeStr[1]));
+    transactionDateNumber = header.from.setDate(parseFloat(dateStr[0]));
+  }
+  transactionDateNumber = header.from.setDate(parseFloat(dateStr[0]));
+
+  if (timeStr !== undefined) {
+    const transactionDate = new Date(transactionDateNumber);
+    transactionDateNumber = transactionDate.setHours(
+      parseFloat(timeStr[0]),
+      parseFloat(timeStr[1])
+    );
   }
 
   // Remaining
@@ -162,8 +169,8 @@ export function extractTransactionChunk(
 
   if (amount && description) {
     return {
-      transactionDate: transactionDate,
-      paymentDate: transactionDate,
+      transactionDate: new Date(transactionDateNumber),
+      paymentDate: new Date(transactionDateNumber),
       amount,
       description,
       description2: channel,
