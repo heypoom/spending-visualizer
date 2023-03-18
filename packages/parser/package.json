@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dayjs": "^1.11.7",
     "pdfjs-dist": "^3.4.120"
   },
   "devDependencies": {

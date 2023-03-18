@@ -30,8 +30,8 @@ describe("kasikorn statment parser", async () => {
     const headerInfo = extractHeaderFromPdf(rawChunk[0]);
 
     expect(headerInfo.accountNo).toBeDefined();
-    expect(headerInfo.from.toISOString()).toBe("2023-01-31T17:00:00.000Z");
-    expect(headerInfo.to.toISOString()).toBe("2023-02-27T17:00:00.000Z");
+    expect(headerInfo.from.toISOString()).toBe("2023-02-01T00:00:00.000Z");
+    expect(headerInfo.to.toISOString()).toBe("2023-02-28T00:00:00.000Z");
   });
 
   it("parses generic kasikorn bank statement", async () => {

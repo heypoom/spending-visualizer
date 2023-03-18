@@ -1,18 +1,19 @@
-import * as dayjs from "dayjs";
 import { Transaction } from "../@types/Transaction";
-import * as customParseFormat from "dayjs/plugin/customParseFormat";
-dayjs.extend(customParseFormat);
 
 type StatementMetadata = {
   accountNo: string;
-  from: dayjs.Dayjs;
-  to: dayjs.Dayjs;
+  from: Date;
+  to: Date;
 };
 
 const PATTERN_ACCOUNT_NO = /[X]{3}\-[X]{1}\-[X]{2}[0-9]{3}\-[0-9]{1}/;
+
 const PATTERN_DATE_DASH = /\d{2}\-\d{2}\-\d{2}/;
+const PATTERN_FULL_DATE_SLASH = /(\d{2})\/(\d{2})\/(\d{4})/;
 const PATTERN_DATE_RANGE_SLASH = /\d{2}\/\d{2}\/\d{4}\s\-\s\d{2}\/\d{2}\/\d{4}/;
+
 const PATTERN_TIME = /\d{2}\:\d{2}/;
+
 const PATTERN_DECIMAL_AMOUNT = /[0-9,]+\.\d{2}/;
 
 const isItemDateFormat = (s: string) => PATTERN_DATE_DASH.test(s);
@@ -54,8 +55,12 @@ export function extractHeaderFromPdf(chunk: string[]): StatementMetadata {
   const dateRange = headerChunk
     .find((str) => str.match(PATTERN_DATE_RANGE_SLASH))
     .split(" - ")
-    .map((dateStr) => dayjs(dateStr, "DD/MM/YYYY"));
-
+    .map(
+      (dateStr) =>
+        new Date(
+          Date.parse(dateStr.replace(PATTERN_FULL_DATE_SLASH, "$3-$2-$1"))
+        )
+    );
   const accountNo = headerChunk.find((str) => str.match(PATTERN_ACCOUNT_NO));
 
   return {
@@ -111,7 +116,6 @@ export function extractChunkFromLine(lineChunks: string[][]): string[][] {
 }
 
 // Extract transction chunk to usable data.
-// TODO: Check type of transaction if transaction is expense or income and expose to transaction.
 export function extractTransactionChunk(
   txChunk: string[],
   header: StatementMetadata
@@ -123,12 +127,12 @@ export function extractTransactionChunk(
 
   const timeStr = txChunk.find((str) => str.match(PATTERN_TIME))?.split(":");
 
-  let transactionDate = dayjs(header.from).set("date", parseFloat(dateStr[0]));
+  let transactionDate = header.from;
+  transactionDate.setDate(parseFloat(dateStr[0]));
 
   if (timeStr !== undefined) {
-    transactionDate = transactionDate
-      .set("hour", parseFloat(timeStr[0]))
-      .set("minute", parseFloat(timeStr[1]));
+    transactionDate.setHours(parseFloat(timeStr[0]));
+    transactionDate.setMinutes(parseFloat(timeStr[1]));
   }
 
   // Remaining
@@ -158,8 +162,8 @@ export function extractTransactionChunk(
 
   if (amount && description) {
     return {
-      transactionDate: transactionDate.toDate(),
-      paymentDate: transactionDate.toDate(),
+      transactionDate: transactionDate,
+      paymentDate: transactionDate,
       amount,
       description,
       description2: channel,
