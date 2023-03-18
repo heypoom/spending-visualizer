@@ -1,6 +1,6 @@
-import dayjs = require("dayjs");
+import * as dayjs from "dayjs";
 import { Transaction } from "../@types/Transaction";
-var customParseFormat = require("dayjs/plugin/customParseFormat");
+import * as customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
 
 type StatementMetadata = {
@@ -22,7 +22,7 @@ const isItemDateFormat = (s: string) => PATTERN_DATE_DASH.test(s);
  * @param contents
  * @returns
  */
-export function extractTransactionsFromPdf(
+export function parseKasikornBankStatement(
   contents: string[][]
 ): Transaction[] {
   const header = extractHeaderFromPdf(contents[0]);
@@ -159,7 +159,7 @@ export function extractTransactionChunk(
   if (amount && description) {
     return {
       transactionDate: transactionDate.toDate(),
-      paymentDate: null,
+      paymentDate: transactionDate.toDate(),
       amount,
       description,
       description2: channel,

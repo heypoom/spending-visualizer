@@ -4,7 +4,7 @@ import { extractTextChunksFromPDF } from "../../utils/extractTextChunksFromPDF";
 import {
   extractHeaderFromPdf,
   extractTextChunksFromLine,
-  extractTransactionsFromPdf,
+  parseKasikornBankStatement,
 } from "../kasikorn.statement";
 
 describe("kasikorn statment parser", async () => {
@@ -35,7 +35,7 @@ describe("kasikorn statment parser", async () => {
   });
 
   it("parses generic kasikorn bank statement", async () => {
-    const transactions = extractTransactionsFromPdf(rawChunk);
+    const transactions = parseKasikornBankStatement(rawChunk);
     expect(transactions.length).toBe(123);
 
     const sampleTransaction = transactions[1];
