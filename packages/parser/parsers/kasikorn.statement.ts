@@ -192,7 +192,7 @@ export function labelTransactionType(
       isTxWithdraw = initialBalance > transaction.remaining;
     } else {
       isTxWithdraw =
-        initialBalance > transactionWithRemaining[index - 1].remaining;
+        transactionWithRemaining[index - 1].remaining > transaction.remaining;
     }
 
     const { transactionDate, paymentDate, amount, description, description2 } =
