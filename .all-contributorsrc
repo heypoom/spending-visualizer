@@ -26,6 +26,15 @@
         "code",
         "doc"
       ]
+    },
+    {
+      "login": "rayriffy",
+      "name": "Phumrapee Limpianchop",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22584594?v=4",
+      "profile": "https://rayriffy.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
