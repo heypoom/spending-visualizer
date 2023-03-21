@@ -7,10 +7,12 @@ import { parseKTCCreditStatement } from "./parsers/ktc.credit";
 import { parseCitibankCreditStatement } from "./parsers/citibank.credit";
 
 import { extractTextChunksFromPDF } from "./utils/extractTextChunksFromPDF";
+import { parseKasikornBankStatement } from "./parsers/kasikorn.statement";
 
 const bankType = ["kasikorn", "ktc", "citibank"] as const;
 
 export type Bank = (typeof bankType)[number];
+
 export type StatementType = "credit" | "account";
 
 export type { Transaction } from "./@types/Transaction";
@@ -36,12 +38,15 @@ export async function parseStatement(
   const rawString = rawChunks.flat().join("");
   const type = findStatementType(rawString);
   const bank = findBankType(rawString);
+
   if (type === "credit") {
     if (bank === "kasikorn") return parseKasikornCreditStatement(rawChunks);
-
     if (bank === "ktc") return parseKTCCreditStatement(rawChunks);
-
     if (bank === "citibank") return parseCitibankCreditStatement(rawChunks);
+  }
+
+  if (type === "account") {
+    if (bank === "kasikorn") return parseKasikornBankStatement(rawChunks);
   }
 
   throw new Error("statement type or bank is not supported");

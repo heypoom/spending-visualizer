@@ -53,6 +53,10 @@ export default function Home() {
       title: "Location/ID",
       accessor: (tx) => tx?.description2,
     },
+    {
+      title: "Type",
+      accessor: (tx) => tx?.type,
+    },
   ]
 
   function handleDrop(e: DragEvent) {
