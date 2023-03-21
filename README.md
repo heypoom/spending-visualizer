@@ -1,6 +1,6 @@
 # Statement Visualizer and Parser
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Find out how you spend your money! This repo provides libraries and webapp to parse your bank or credit card statements (PDF format) into JSON, and visualize it.
@@ -32,6 +32,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="http://ggolfz.me"><img src="https://avatars.githubusercontent.com/u/52349645?v=4?s=100" width="100px;" alt="GGolfz"/><br /><sub><b>GGolfz</b></sub></a><br /><a href="#infra-GGolfz" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/heypoom/spending-visualizer/commits?author=GGolfz" title="Code">💻</a> <a href="https://github.com/heypoom/spending-visualizer/commits?author=GGolfz" title="Tests">⚠️</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://poom.dev"><img src="https://avatars.githubusercontent.com/u/4714175?v=4?s=100" width="100px;" alt="Phoomparin Mano"/><br /><sub><b>Phoomparin Mano</b></sub></a><br /><a href="https://github.com/heypoom/spending-visualizer/commits?author=heypoom" title="Code">💻</a> <a href="https://github.com/heypoom/spending-visualizer/commits?author=heypoom" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://rayriffy.com"><img src="https://avatars.githubusercontent.com/u/22584594?v=4?s=100" width="100px;" alt="Phumrapee Limpianchop"/><br /><sub><b>Phumrapee Limpianchop</b></sub></a><br /><a href="https://github.com/heypoom/spending-visualizer/commits?author=rayriffy" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
