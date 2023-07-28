@@ -39,8 +39,6 @@ export async function parseStatement(
   const type = findStatementType(rawString)
   const bank = findBankType(rawString)
 
-  debugger
-
   if (type === 'credit') {
     if (bank === 'kasikorn') return parseKasikornCreditStatement(rawChunks)
     if (bank === 'ktc') return parseKTCCreditStatement(rawChunks)

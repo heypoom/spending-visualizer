@@ -38,7 +38,7 @@ export default function Home() {
   const columns: Column[] = [
     {
       title: "Payment Date",
-      accessor: (tx) => tx?.paymentDate?.toLocaleDateString(),
+      accessor: (tx) => tx?.paymentDate?.toLocaleDateString?.(),
       class: "text-semibold",
     },
     {
